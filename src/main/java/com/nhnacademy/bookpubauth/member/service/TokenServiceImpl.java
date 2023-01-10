@@ -1,6 +1,7 @@
 package com.nhnacademy.bookpubauth.member.service;
 
 import com.nhnacademy.bookpubauth.jwt.provider.JwtProvider;
+import com.nhnacademy.bookpubauth.member.dto.LoginMemberResponseDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,17 +23,19 @@ public class TokenServiceImpl implements TokenService{
     /**
      * {@inheritDoc}
      */
-    public String tokenIssued(String userId, List<String> authorities) {
+    @Override
+    public LoginMemberResponseDto tokenIssued(String userId, List<String> authorities) {
         String refreshToken = provider.createRefreshToken(userId, authorities);
         redisTemplate.opsForHash().put(userId, REFRESH_TOKEN, refreshToken);
 
-        return provider.createAccessToken(userId, authorities);
+        return new LoginMemberResponseDto(provider.createAccessToken(userId, authorities));
     }
 
     /**
      * {@inheritDoc}
      */
-    public String tokenReIssued(String userId, List<String> authorities) {
-        return provider.createAccessToken(userId, authorities);
+    @Override
+    public LoginMemberResponseDto tokenReIssued(String userId, List<String> authorities) {
+        return new LoginMemberResponseDto(provider.createAccessToken(userId, authorities));
     }
 }
