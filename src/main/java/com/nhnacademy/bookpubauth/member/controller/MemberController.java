@@ -1,6 +1,7 @@
 package com.nhnacademy.bookpubauth.member.controller;
 
 import com.nhnacademy.bookpubauth.member.dto.LoginMemberRequestDto;
+import com.nhnacademy.bookpubauth.member.dto.LoginMemberResponseDto;
 import com.nhnacademy.bookpubauth.member.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,13 +24,13 @@ public class MemberController {
     private final TokenService tokenService;
 
     @GetMapping("/issue")
-    public ResponseEntity<String> tokenIssued(@RequestBody LoginMemberRequestDto requestDto) {
+    public ResponseEntity<LoginMemberResponseDto> tokenIssued(@RequestBody LoginMemberRequestDto requestDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tokenService.tokenIssued(requestDto.getUserId(), requestDto.getAuthorities()));
     }
 
     @GetMapping("/reissue")
-    public ResponseEntity<String> tokenReIssued(@RequestBody LoginMemberRequestDto requestDto) {
+    public ResponseEntity<LoginMemberResponseDto> tokenReIssued(@RequestBody LoginMemberRequestDto requestDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tokenService.tokenReIssued(requestDto.getUserId(), requestDto.getAuthorities()));
     }
