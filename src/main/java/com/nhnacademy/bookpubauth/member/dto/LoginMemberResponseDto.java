@@ -1,6 +1,6 @@
 package com.nhnacademy.bookpubauth.member.dto;
 
-import lombok.AllArgsConstructor;
+import java.util.List;
 import lombok.Getter;
 
 /**
@@ -11,7 +11,8 @@ import lombok.Getter;
  **/
 
 @Getter
-@AllArgsConstructor
 public class LoginMemberResponseDto {
-    private String token;
+    private String memberId;
+    private String memberPwd;
+    private List<String> authorities;
 }
