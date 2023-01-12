@@ -1,10 +1,10 @@
-package com.nhnacademy.bookpubauth.member.service;
+package com.nhnacademy.bookpubauth.token.service;
 
-import com.nhnacademy.bookpubauth.member.dto.LoginMemberResponseDto;
-import java.util.List;
+import java.util.Collection;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
- * Some description here
+ * 토큰 서비스.
  *
  * @author : 임태원
  * @since : 1.0
@@ -17,7 +17,8 @@ public interface TokenService {
      * @param authorities 로그인한 유저의 권한들.
      * @return accessToken 발급
      */
-    LoginMemberResponseDto tokenIssued(String userId, List<String> authorities);
+    String tokenIssued(String userId,
+                       Collection<? extends GrantedAuthority> authorities);
 
     /**
      * accessToken을 재발급해주는 메소드.
@@ -26,5 +27,6 @@ public interface TokenService {
      * @param authorities 로그인한 유저의 권한들.
      * @return accessToken 재발급.
      */
-    LoginMemberResponseDto tokenReIssued(String userId, List<String> authorities);
+    String tokenReIssued(String userId,
+                         Collection<? extends GrantedAuthority> authorities);
 }
