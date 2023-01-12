@@ -1,12 +1,13 @@
-package com.nhnacademy.bookpubauth.jwt.provider;
+package com.nhnacademy.bookpubauth.token.util;
 
 import java.time.Duration;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -21,12 +22,11 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @RequiredArgsConstructor
 @ConfigurationProperties(prefix = "bookpub.jwt")
 @Component
-public class JwtProvider {
+public class JwtUtil {
     private static final Long ACCESS_TOKEN_VALID_TIME = Duration.ofHours(1).toMillis();
     private static final Long REFRESH_TOKEN_VALID_TIME = Duration.ofDays(1).toMillis();
     private static final String ACCESS_TOKEN = "access-token";
     private static final String REFRESH_TOKEN = "refresh-token";
-
 
     private String secret;
 
@@ -50,7 +50,10 @@ public class JwtProvider {
      * @param tokenValidTime 발급할 토큰의 만료시간
      * @return jwt를 만들어 반환한다.
      */
-    private String createToken(String userId, List<String> authorities, String tokenType, Long tokenValidTime) {
+    private String createToken(String userId,
+                               Collection<? extends GrantedAuthority> authorities,
+                               String tokenType,
+                               Long tokenValidTime) {
         Claims claims = Jwts.claims().setSubject(tokenType);
         claims.put("userId", userId);
         claims.put("roles", authorities);
@@ -71,7 +74,7 @@ public class JwtProvider {
      * @param authorities 로그인한 유저 권한들
      * @return accessToken 발급
      */
-    public String createAccessToken(String userId, List<String> authorities) {
+    public String createAccessToken(String userId, Collection<? extends GrantedAuthority> authorities) {
         return createToken(userId, authorities, ACCESS_TOKEN, ACCESS_TOKEN_VALID_TIME);
     }
 
@@ -82,7 +85,7 @@ public class JwtProvider {
      * @param authorities 로그인한 유저 권한들
      * @return refreshToken 발급
      */
-    public String createRefreshToken(String userId, List<String> authorities) {
+    public String createRefreshToken(String userId,  Collection<? extends GrantedAuthority> authorities) {
         return createToken(userId, authorities, REFRESH_TOKEN, REFRESH_TOKEN_VALID_TIME);
     }
 
