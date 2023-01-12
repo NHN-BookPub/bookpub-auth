@@ -40,7 +40,7 @@ public class RedisConfig implements BeanClassLoaderAware {
     }
 
     @Bean
-    public RedisTemplate<byte[], byte[]> redisTemplate() {
+    public RedisTemplate<?, ?> redisTemplate() {
         RedisTemplate<byte[], byte[]> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
