@@ -13,11 +13,11 @@ public interface TokenService {
     /**
      * 토큰을 발급해주는 메소드.
      *
-     * @param userId      로그인한 유저의 아이디.
+     * @param userNo      로그인한 유저의 PK.
      * @param authorities 로그인한 유저의 권한들.
      * @return accessToken 발급
      */
-    String tokenIssued(String userId,
+    String tokenIssued(Long userNo, String sessionId,
                        Collection<? extends GrantedAuthority> authorities);
 
     /**

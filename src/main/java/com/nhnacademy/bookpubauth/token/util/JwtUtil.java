@@ -27,7 +27,6 @@ public class JwtUtil {
     private static final Long REFRESH_TOKEN_VALID_TIME = Duration.ofDays(1).toMillis();
     private static final String ACCESS_TOKEN = "access-token";
     private static final String REFRESH_TOKEN = "refresh-token";
-
     private String secret;
 
     /**
@@ -55,8 +54,8 @@ public class JwtUtil {
                                String tokenType,
                                Long tokenValidTime) {
         Claims claims = Jwts.claims().setSubject(tokenType);
-        claims.put("userId", userId);
-        claims.put("roles", authorities);
+        claims.put("memberUUID", userId);
+        claims.put("roles", authorities.toString());
         Date now = new Date();
 
         return Jwts.builder()
@@ -70,23 +69,23 @@ public class JwtUtil {
     /**
      * accessToken을 생성하는 메소드.
      *
-     * @param userId      로그인한 유저 ID
+     * @param memberUUID      로그인한 유저 ID
      * @param authorities 로그인한 유저 권한들
      * @return accessToken 발급
      */
-    public String createAccessToken(String userId, Collection<? extends GrantedAuthority> authorities) {
-        return createToken(userId, authorities, ACCESS_TOKEN, ACCESS_TOKEN_VALID_TIME);
+    public String createAccessToken(String memberUUID, Collection<? extends GrantedAuthority> authorities) {
+        return createToken(memberUUID, authorities, ACCESS_TOKEN, ACCESS_TOKEN_VALID_TIME);
     }
 
     /**
      * refreshToken을 생성하는 메소드.
      *
-     * @param userId      로그인한 유저 ID
+     * @param memberUUID      로그인한 유저 ID
      * @param authorities 로그인한 유저 권한들
      * @return refreshToken 발급
      */
-    public String createRefreshToken(String userId,  Collection<? extends GrantedAuthority> authorities) {
-        return createToken(userId, authorities, REFRESH_TOKEN, REFRESH_TOKEN_VALID_TIME);
+    public String createRefreshToken(String memberUUID,  Collection<? extends GrantedAuthority> authorities) {
+        return createToken(memberUUID, authorities, REFRESH_TOKEN, REFRESH_TOKEN_VALID_TIME);
     }
 
     public String getSecret() {
