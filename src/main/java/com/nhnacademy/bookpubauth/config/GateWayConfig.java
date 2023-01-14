@@ -14,6 +14,11 @@ import org.springframework.context.annotation.Configuration;
 public class GateWayConfig {
     private String gateway;
 
+    /**
+     * 게이트웨이 url을 가져오는 메소드.
+     *
+     * @return url 리턴.
+     */
     public String getGatewayUrl() {
         return gateway;
     }
