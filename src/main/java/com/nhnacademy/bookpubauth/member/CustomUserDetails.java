@@ -8,7 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
- * Some description here
+ * 유저정보를 담고있는 userDetail interface 의 상속체.
  *
  * @author : 임태원
  * @since : 1.0

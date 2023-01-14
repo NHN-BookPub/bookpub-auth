@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * shop에 member 정보를 요청 할 DTO.
+ * shop 서버에 member 정보를 요청 할 DTO.
  *
  * @author : 임태원
  * @since : 1.0
