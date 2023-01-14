@@ -3,8 +3,7 @@ package com.nhnacademy.bookpubauth.member.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-/**
- * shop에 member 정보를 요청 할 DTO.
+/** 프론트 서버에서 전달받은 로그인 인증을 위한 request dto.
  *
  * @author : 임태원
  * @since : 1.0
@@ -12,5 +11,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class LoginMemberRequestDto {
-    String memberId;
+    private String id;
+    private String pwd;
+    private String sessionId;
 }
