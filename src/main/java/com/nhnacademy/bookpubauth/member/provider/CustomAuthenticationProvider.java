@@ -1,12 +1,12 @@
 package com.nhnacademy.bookpubauth.member.provider;
 
+import com.nhnacademy.bookpubauth.member.CustomUserDetails;
 import com.nhnacademy.bookpubauth.member.exception.NotMatchMemberLoginInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * 커스텀하여 만든 유저 인증 provider.
@@ -28,7 +28,8 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
         String userId = (String) authentication.getPrincipal();
         String userPwd = (String) authentication.getCredentials();
 
-        UserDetails userDetails = this.getUserDetailsService().loadUserByUsername(userId);
+        CustomUserDetails userDetails
+                = (CustomUserDetails) this.getUserDetailsService().loadUserByUsername(userId);
         boolean matches = this.getPasswordEncoder().matches(userPwd, userDetails.getPassword());
 
         if (!matches) {
@@ -36,7 +37,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
         }
 
         return new UsernamePasswordAuthenticationToken(
-                userDetails.getUsername(),
+                userDetails.getMemberNo(),
                 userDetails.getPassword(),
                 userDetails.getAuthorities());
     }

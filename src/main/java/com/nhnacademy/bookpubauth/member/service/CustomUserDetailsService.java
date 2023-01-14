@@ -3,8 +3,8 @@ package com.nhnacademy.bookpubauth.member.service;
 
 import com.nhnacademy.bookpubauth.member.CustomUserDetails;
 import com.nhnacademy.bookpubauth.member.adaptor.MemberAdaptor;
-import com.nhnacademy.bookpubauth.member.dto.LoginMemberRequestDto;
-import com.nhnacademy.bookpubauth.member.dto.LoginMemberResponseDto;
+import com.nhnacademy.bookpubauth.member.dto.MemberInfoRequestDto;
+import com.nhnacademy.bookpubauth.member.dto.MemberInfoResponseDto;
 import com.nhnacademy.bookpubauth.member.exception.NotMemberBookpubSite;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +22,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final MemberAdaptor memberAdaptor;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        ResponseEntity<LoginMemberResponseDto> responseMemberData
-                = memberAdaptor.loginRequest(new LoginMemberRequestDto(username));
+        ResponseEntity<MemberInfoResponseDto> responseMemberData
+                = memberAdaptor.loginRequest(new MemberInfoRequestDto(username));
 
         if (Objects.isNull(responseMemberData)) {
             throw new NotMemberBookpubSite();
