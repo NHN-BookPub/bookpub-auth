@@ -2,6 +2,7 @@ package com.nhnacademy.bookpubauth.token.service;
 
 import com.nhnacademy.bookpubauth.token.util.JwtUtil;
 import java.util.Collection;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service;
  **/
 @Service
 @RequiredArgsConstructor
-public class TokenServiceImpl implements TokenService{
+public class TokenServiceImpl implements TokenService {
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
     private static final String REFRESH_TOKEN = "refresh-token";
@@ -24,12 +25,17 @@ public class TokenServiceImpl implements TokenService{
      * {@inheritDoc}
      */
     @Override
-    public String tokenIssued(String userId,
+    public String tokenIssued(Long userNo, String sessionId,
                               Collection<? extends GrantedAuthority> authorities) {
-        String refreshToken = jwtUtil.createRefreshToken(userId, authorities);
-        redisTemplate.opsForHash().put(userId, REFRESH_TOKEN, refreshToken);
+        String memberUUID = UUID.randomUUID().toString();
 
-        return jwtUtil.createAccessToken(userId, authorities);
+        String refreshToken = jwtUtil.createRefreshToken(memberUUID, authorities);
+        String accessToken = jwtUtil.createAccessToken(memberUUID, authorities);
+
+        redisTemplate.opsForHash().put(String.valueOf(userNo), REFRESH_TOKEN, refreshToken);
+        redisTemplate.opsForHash().put(memberUUID, sessionId, String.valueOf(userNo));
+
+        return accessToken;
     }
 
     /**
