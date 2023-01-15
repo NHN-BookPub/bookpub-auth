@@ -1,7 +1,7 @@
 package com.nhnacademy.bookpubauth.member.exception;
 
 /**
- * Some description here
+ * 회원정보가 없을 때 발생하는 에러.
  *
  * @author : 임태원
  * @since : 1.0
