@@ -30,7 +30,6 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     private final ObjectMapper objectMapper;
     private static final String AUTH_HEADER = "Authorization";
     private static final String TOKEN_TYPE = "Bearer ";
-    private String sessionId;
 
     @Override
     public Authentication attemptAuthentication(
@@ -39,7 +38,6 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         try {
             requestDto = objectMapper.readValue(request.getInputStream(), LoginMemberRequestDto.class);
-            this.sessionId = requestDto.getSessionId();
         } catch (IOException e) {
             throw new UserDtoParsingException();
         }
@@ -55,7 +53,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     protected void successfulAuthentication(
             HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) {
         String accessToken = tokenService.tokenIssued(
-                (Long) authResult.getPrincipal(), this.sessionId, authResult.getAuthorities());
+                (Long) authResult.getPrincipal(), authResult.getAuthorities());
 
         response.setHeader(AUTH_HEADER, TOKEN_TYPE + accessToken);
     }

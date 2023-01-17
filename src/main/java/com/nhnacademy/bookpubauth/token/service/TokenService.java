@@ -17,7 +17,7 @@ public interface TokenService {
      * @param authorities 로그인한 유저의 권한들.
      * @return accessToken 발급
      */
-    String tokenIssued(Long userNo, String sessionId,
+    String tokenIssued(Long userNo,
                        Collection<? extends GrantedAuthority> authorities);
 
     /**
