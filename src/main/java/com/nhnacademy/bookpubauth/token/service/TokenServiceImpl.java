@@ -20,12 +20,13 @@ public class TokenServiceImpl implements TokenService {
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
     private static final String REFRESH_TOKEN = "refresh-token";
+    private static final String ACCESS_TOKEN = "access-token";
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String tokenIssued(Long userNo, String sessionId,
+    public String tokenIssued(Long userNo,
                               Collection<? extends GrantedAuthority> authorities) {
         String memberUUID = UUID.randomUUID().toString();
 
@@ -33,7 +34,8 @@ public class TokenServiceImpl implements TokenService {
         String accessToken = jwtUtil.createAccessToken(memberUUID, authorities);
 
         redisTemplate.opsForHash().put(String.valueOf(userNo), REFRESH_TOKEN, refreshToken);
-        redisTemplate.opsForHash().put(memberUUID, sessionId, String.valueOf(userNo));
+        redisTemplate.opsForHash().put(memberUUID, ACCESS_TOKEN, String.valueOf(userNo));
+
 
         return accessToken;
     }
