@@ -1,6 +1,7 @@
 package com.nhnacademy.bookpubauth.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -18,21 +19,25 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 @EnableRedisHttpSession
 @Configuration
 @ConfigurationProperties(prefix = "bookpub.redis")
+@RequiredArgsConstructor
 public class RedisConfig implements BeanClassLoaderAware {
+    private final KeyConfig keyConfig;
+
     private String host;
-    private int port;
+    private String port;
     private String password;
-    private int database;
+    private String database;
     private ClassLoader classLoader;
 
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
-        configuration.setHostName(host);
-        configuration.setPort(port);
-        configuration.setPassword(password);
-        configuration.setDatabase(database);
+        configuration.setHostName(keyConfig.keyStore(host));
+        configuration.setPort(Integer.parseInt(keyConfig.keyStore(port)));
+        configuration.setPassword(keyConfig.keyStore(password));
+        configuration.setDatabase(Integer.parseInt(keyConfig.keyStore(database)));
+
 
         return new LettuceConnectionFactory(configuration);
     }
@@ -75,11 +80,11 @@ public class RedisConfig implements BeanClassLoaderAware {
         this.host = host;
     }
 
-    public int getPort() {
+    public String getPort() {
         return port;
     }
 
-    public void setPort(int port) {
+    public void setPort(String port) {
         this.port = port;
     }
 
@@ -91,11 +96,11 @@ public class RedisConfig implements BeanClassLoaderAware {
         this.password = password;
     }
 
-    public int getDatabase() {
+    public String getDatabase() {
         return database;
     }
 
-    public void setDatabase(int database) {
+    public void setDatabase(String database) {
         this.database = database;
     }
 }
