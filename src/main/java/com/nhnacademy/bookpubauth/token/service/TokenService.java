@@ -1,6 +1,8 @@
 package com.nhnacademy.bookpubauth.token.service;
 
 import java.util.Collection;
+
+import io.jsonwebtoken.Claims;
 import org.springframework.security.core.GrantedAuthority;
 
 /**
@@ -20,13 +22,18 @@ public interface TokenService {
     String tokenIssued(Long userNo,
                        Collection<? extends GrantedAuthority> authorities);
 
+
     /**
      * accessToken을 재발급해주는 메소드.
      *
-     * @param userId      로그인한 유저의 아이디.
-     * @param authorities 로그인한 유저의 권한들.
+     * @param accessToken 재발급 받으려고 하는 accessToken
      * @return accessToken 재발급.
      */
-    String tokenReIssued(String userId,
-                         Collection<? extends GrantedAuthority> authorities);
+    String tokenReIssued(String accessToken);
+
+    /**
+     * accessToken이 변조된 게 아닌지 확인하는 메소드.
+     * @param claims 서버에서 전송 된 accessToken의 claim부분.
+     */
+    String accessTokenValidate(Claims claims);
 }

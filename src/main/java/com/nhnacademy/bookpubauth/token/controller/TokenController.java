@@ -1,11 +1,15 @@
 package com.nhnacademy.bookpubauth.token.controller;
 
-import com.nhnacademy.bookpubauth.member.dto.MemberInfoRequestDto;
-import com.nhnacademy.bookpubauth.member.dto.MemberInfoResponseDto;
+import static com.nhnacademy.bookpubauth.token.util.JwtUtil.ACCESS_TOKEN_VALID_TIME;
+import static com.nhnacademy.bookpubauth.token.util.JwtUtil.EXP_HEADER;
+
 import com.nhnacademy.bookpubauth.token.service.TokenService;
+import com.nhnacademy.bookpubauth.token.util.JwtUtil;
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,12 +22,25 @@ import org.springframework.web.bind.annotation.RestController;
  **/
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth/token")
+@RequestMapping("/auth")
+@Slf4j
 public class TokenController {
     private final TokenService tokenService;
 
-    @GetMapping("/reissue")
-    public ResponseEntity<MemberInfoResponseDto> tokenReIssued(@RequestBody MemberInfoRequestDto requestDto) {
-        return null;
+    @PostMapping("/reissue")
+    public ResponseEntity<Void> tokenReIssued(
+            @RequestBody String accessToken) {
+        String result = tokenService.tokenReIssued(accessToken);
+
+        if (result.contains("로그인")) {
+            return ResponseEntity.ok()
+                    .header("X-MESSAGE", result)
+                    .build();
+        }
+
+        return ResponseEntity.ok()
+                .header(JwtUtil.AUTH_HEADER, JwtUtil.TOKEN_TYPE + result)
+                .header(EXP_HEADER, String.valueOf(new Date().getTime() + ACCESS_TOKEN_VALID_TIME))
+                .build();
     }
 }
