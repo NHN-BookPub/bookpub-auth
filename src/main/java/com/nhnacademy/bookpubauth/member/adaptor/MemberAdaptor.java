@@ -33,7 +33,6 @@ public class MemberAdaptor {
      */
     public ResponseEntity<MemberInfoResponseDto> loginRequest(
             MemberInfoRequestDto requestDto) {
-        log.info(requestDto.getMemberId());
 
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<MemberInfoRequestDto> entity = new HttpEntity<>(requestDto, headers);
