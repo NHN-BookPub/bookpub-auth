@@ -5,13 +5,13 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import javax.annotation.PostConstruct;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 
 /**
  * 토큰 발급 클래스.
@@ -23,11 +23,16 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @ConfigurationProperties(prefix = "bookpub.jwt")
 @Component
 public class JwtUtil {
-    private static final Long ACCESS_TOKEN_VALID_TIME = Duration.ofHours(1).toMillis();
+    public static final Long ACCESS_TOKEN_VALID_TIME = Duration.ofHours(1).toMillis();
     private static final Long REFRESH_TOKEN_VALID_TIME = Duration.ofDays(1).toMillis();
-    private static final String ACCESS_TOKEN = "access-token";
-    private static final String REFRESH_TOKEN = "refresh-token";
+    public static final String ACCESS_TOKEN = "access-token";
+    public static final String REFRESH_TOKEN = "refresh-token";
+    public static final String AUTH_HEADER = "Authorization";
+    public static final String EXP_HEADER = "X-Expire";
+    public static final String TOKEN_TYPE = "Bearer ";
+    private final Base64.Decoder decoder = Base64.getUrlDecoder();
     private String secret;
+
 
     /**
      * 생성자 이전에 실행되는 초기화 메소드
@@ -69,7 +74,7 @@ public class JwtUtil {
     /**
      * accessToken을 생성하는 메소드.
      *
-     * @param memberUUID      로그인한 유저 ID
+     * @param memberUUID  로그인한 유저 ID
      * @param authorities 로그인한 유저 권한들
      * @return accessToken 발급
      */
@@ -80,12 +85,52 @@ public class JwtUtil {
     /**
      * refreshToken을 생성하는 메소드.
      *
-     * @param memberUUID      로그인한 유저 ID
+     * @param memberUUID  로그인한 유저 ID
      * @param authorities 로그인한 유저 권한들
      * @return refreshToken 발급
      */
-    public String createRefreshToken(String memberUUID,  Collection<? extends GrantedAuthority> authorities) {
+    public String createRefreshToken(String memberUUID, Collection<? extends GrantedAuthority> authorities) {
         return createToken(memberUUID, authorities, REFRESH_TOKEN, REFRESH_TOKEN_VALID_TIME);
+    }
+
+    /**
+     * claim부분만 파싱해주는 메소드.
+     *
+     * @param token jwt토큰.
+     * @return jwt의 claim부분만 파싱 된 결과.
+     */
+    public Claims parseClaims(String token) {
+        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+    }
+
+    /**
+     * accessToken 재발급 메소드.
+     *
+     * @param claims 발급되었던 token의 claim 부분.
+     * @return accessToken 발급.
+     */
+    public String reissuedAccessToken(Claims claims) {
+        Date now = new Date();
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + ACCESS_TOKEN_VALID_TIME))
+                .signWith(SignatureAlgorithm.HS256, secret)
+                .compact();
+    }
+
+    /**
+     * 토큰을 복호화해주는 메소드.
+     *
+     * @param jwt accessToken 정보.
+     * @return 복호화 된 정보를 리턴해준다.
+     */
+    public String decodeJwt(String jwt) {
+        String jsonWebToken = jwt.substring(TOKEN_TYPE.length());
+        String payload = jsonWebToken.split("\\.")[1];
+
+        return new String(decoder.decode(payload));
     }
 
     public String getSecret() {
