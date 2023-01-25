@@ -53,7 +53,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     protected void successfulAuthentication(
             HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) {
         String accessToken = tokenService.tokenIssued(
-                (Long) authResult.getPrincipal(), authResult.getAuthorities());
+                Long.parseLong((String) authResult.getPrincipal()), authResult.getAuthorities());
 
         response.setHeader(AUTH_HEADER, TOKEN_TYPE + accessToken);
         response.setHeader(EXP_HEADER, String.valueOf(new Date().getTime() + ACCESS_TOKEN_VALID_TIME));
