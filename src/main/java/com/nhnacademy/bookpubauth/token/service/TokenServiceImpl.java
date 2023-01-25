@@ -59,31 +59,61 @@ public class TokenServiceImpl implements TokenService {
         Claims claims = jwtUtil.parseClaims(accessToken);
         String memberUUID = accessTokenValidate(claims);
 
+        String refreshToken = getRefreshToken(memberUUID);
+
+        String payload = jwtUtil.decodeJwt(refreshToken);
+        TokenInfoDto tokenInfo = getTokenInfoDto(payload);
+
+        long validTime = tokenInfo.getExp() - (new Date().getTime() / 1000);
+
+        String message = refreshTokenExpCheck(validTime);
+        if (Objects.nonNull(message)) return message;
+
+        return jwtUtil.reissuedAccessToken(claims);
+    }
+
+    /**
+     * redis에서 RefreshToken을 가져오는 메소드.
+     *
+     * @param memberUUID 멤버 고유번호.
+     * @return 인증된 멤버의 refreshToken.
+     */
+    private String getRefreshToken(String memberUUID) {
         String refreshToken =
                 (String) redisTemplate.opsForHash().get(JwtUtil.REFRESH_TOKEN, memberUUID);
 
         if (Objects.isNull(refreshToken)) {
             throw new UnusualApproachException();
         }
+        return refreshToken;
+    }
 
-        redisTemplate.opsForHash().delete(accessToken, memberUUID);
+    /**
+     * refreshToken의 유지시간이 다 됐는지 체크하는 메소드.
+     *
+     * @param validTime 유효시간.
+     * @return 유효한지에 대한 결과값.
+     */
+    private static String refreshTokenExpCheck(long validTime) {
+        if (validTime <= 0) {
+            return MESSAGE;
+        }
+        return null;
+    }
 
-        String payload = jwtUtil.decodeJwt(refreshToken);
-
+    /**
+     * tokenDto에 String인 payload를 파싱하여 값을 쉽게 건들기 위함.
+     * @param payload refreshToken의 payload 부분.
+     * @return tokeninfo Dto.
+     */
+    private TokenInfoDto getTokenInfoDto(String payload) {
         TokenInfoDto tokenInfo;
         try {
             tokenInfo = objectMapper.readValue(payload, TokenInfoDto.class);
         } catch (JsonProcessingException e) {
             throw new TokenParsingException();
         }
-
-        long validTime = tokenInfo.getExp() - (new Date().getTime() / 1000);
-
-        if (validTime <= 0) {
-            return MESSAGE;
-        }
-
-        return jwtUtil.reissuedAccessToken(claims);
+        return tokenInfo;
     }
 
     /**
