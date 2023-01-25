@@ -22,7 +22,6 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 @RequiredArgsConstructor
 public class RedisConfig implements BeanClassLoaderAware {
     private final KeyConfig keyConfig;
-
     private String host;
     private String port;
     private String password;
@@ -37,7 +36,6 @@ public class RedisConfig implements BeanClassLoaderAware {
         configuration.setPort(Integer.parseInt(keyConfig.keyStore(port)));
         configuration.setPassword(keyConfig.keyStore(password));
         configuration.setDatabase(Integer.parseInt(keyConfig.keyStore(database)));
-
 
         return new LettuceConnectionFactory(configuration);
     }
