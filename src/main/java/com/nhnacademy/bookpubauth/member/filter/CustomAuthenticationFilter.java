@@ -1,11 +1,14 @@
 package com.nhnacademy.bookpubauth.member.filter;
 
+import static com.nhnacademy.bookpubauth.token.util.JwtUtil.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.bookpubauth.member.dto.LoginMemberRequestDto;
 import com.nhnacademy.bookpubauth.member.exception.UserDtoParsingException;
 import com.nhnacademy.bookpubauth.member.provider.CustomAuthenticationProvider;
 import com.nhnacademy.bookpubauth.token.service.TokenService;
 import java.io.IOException;
+import java.util.Date;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,14 +31,12 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     private final CustomAuthenticationProvider provider;
     private final TokenService tokenService;
     private final ObjectMapper objectMapper;
-    private static final String AUTH_HEADER = "Authorization";
-    private static final String TOKEN_TYPE = "Bearer ";
+
 
     @Override
     public Authentication attemptAuthentication(
             HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         LoginMemberRequestDto requestDto;
-
         try {
             requestDto = objectMapper.readValue(request.getInputStream(), LoginMemberRequestDto.class);
         } catch (IOException e) {
@@ -44,7 +45,6 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         UsernamePasswordAuthenticationToken token
                 = new UsernamePasswordAuthenticationToken(requestDto.getId(), requestDto.getPwd());
-
 
         return provider.authenticate(token);
     }
@@ -56,6 +56,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
                 (Long) authResult.getPrincipal(), authResult.getAuthorities());
 
         response.setHeader(AUTH_HEADER, TOKEN_TYPE + accessToken);
+        response.setHeader(EXP_HEADER, String.valueOf(new Date().getTime() + ACCESS_TOKEN_VALID_TIME));
     }
 
 }
