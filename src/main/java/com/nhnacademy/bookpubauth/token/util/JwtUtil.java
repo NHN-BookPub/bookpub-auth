@@ -44,7 +44,7 @@ public class JwtUtil {
      */
     @PostConstruct
     private void init() {
-        secret = new String(keyConfig.keyStore(secret).getBytes());
+        secret = keyConfig.keyStore(secret);
     }
 
     /**
@@ -120,7 +120,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + ACCESS_TOKEN_VALID_TIME))
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .signWith(SignatureAlgorithm.HS256, secret.getBytes())
                 .compact();
     }
 
