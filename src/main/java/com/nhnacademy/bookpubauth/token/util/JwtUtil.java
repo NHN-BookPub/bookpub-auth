@@ -1,5 +1,6 @@
 package com.nhnacademy.bookpubauth.token.util;
 
+import com.nhnacademy.bookpubauth.config.KeyConfig;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Collection;
@@ -9,6 +10,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @ConfigurationProperties(prefix = "bookpub.jwt")
 @Component
+@Slf4j
 public class JwtUtil {
     public static final Long ACCESS_TOKEN_VALID_TIME = Duration.ofHours(1).toMillis();
     private static final Long REFRESH_TOKEN_VALID_TIME = Duration.ofDays(1).toMillis();
@@ -31,6 +34,7 @@ public class JwtUtil {
     public static final String EXP_HEADER = "X-Expire";
     public static final String TOKEN_TYPE = "Bearer ";
     private final Base64.Decoder decoder = Base64.getUrlDecoder();
+    private final KeyConfig keyConfig;
     private String secret;
 
 
@@ -40,7 +44,7 @@ public class JwtUtil {
      */
     @PostConstruct
     private void init() {
-        secret = Base64.getEncoder().encodeToString(secret.getBytes());
+        secret = new String(keyConfig.keyStore(secret).getBytes());
     }
 
     /**
