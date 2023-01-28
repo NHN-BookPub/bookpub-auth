@@ -16,6 +16,12 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
+/**
+ * 레디스를 이용하기위한 config 클래스.
+ *
+ * @author : 임태원
+ * @since : 1.0
+ */
 @EnableRedisHttpSession
 @Configuration
 @ConfigurationProperties(prefix = "bookpub.redis")
@@ -28,7 +34,11 @@ public class RedisConfig implements BeanClassLoaderAware {
     private String database;
     private ClassLoader classLoader;
 
-
+    /**
+     * 레디스에 연결하기 위한 configuration 설정 메소드 빈.
+     *
+     * @return 레디스 연결 설정이 들어간 Factory를 반환.
+     */
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
@@ -40,14 +50,19 @@ public class RedisConfig implements BeanClassLoaderAware {
         return new LettuceConnectionFactory(configuration);
     }
 
+    /**
+     * 레디스에 키, 밸류 등 값을 넣을 때, 뺄 때 직렬화, 역직렬화를 어떻게 할 지 설정하는 메소드.
+     *
+     * @return redis에 get,put 등을 할 수있게하는 redisTemplate객체를 반환.
+     */
     @Bean
     public RedisTemplate<?, ?> redisTemplate() {
         RedisTemplate<byte[], byte[]> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
 
         return redisTemplate;
     }
