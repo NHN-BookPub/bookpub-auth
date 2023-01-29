@@ -56,7 +56,7 @@ public class TokenServiceImpl implements TokenService {
      */
     @Override
     public String tokenReIssued(String accessToken) {
-        if (!jwtUtil.validateToken(accessToken)) {
+        if (!jwtUtil.isValidateToken(accessToken)) {
             return TOKEN_INVALID_MESSAGE;
         }
 
