@@ -1,6 +1,9 @@
 package com.nhnacademy.bookpubauth.member.filter;
 
-import static com.nhnacademy.bookpubauth.token.util.JwtUtil.*;
+import static com.nhnacademy.bookpubauth.token.util.JwtUtil.ACCESS_TOKEN_VALID_TIME;
+import static com.nhnacademy.bookpubauth.token.util.JwtUtil.AUTH_HEADER;
+import static com.nhnacademy.bookpubauth.token.util.JwtUtil.EXP_HEADER;
+import static com.nhnacademy.bookpubauth.token.util.JwtUtil.TOKEN_TYPE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.bookpubauth.member.dto.LoginMemberRequestDto;
@@ -34,11 +37,14 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
 
     @Override
-    public Authentication attemptAuthentication(
-            HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request,
+                                                HttpServletResponse response)
+            throws AuthenticationException {
         LoginMemberRequestDto requestDto;
+
         try {
-            requestDto = objectMapper.readValue(request.getInputStream(), LoginMemberRequestDto.class);
+            requestDto =
+                    objectMapper.readValue(request.getInputStream(), LoginMemberRequestDto.class);
         } catch (IOException e) {
             throw new UserDtoParsingException();
         }
@@ -50,13 +56,15 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     }
 
     @Override
-    protected void successfulAuthentication(
-            HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) {
+    protected void successfulAuthentication(HttpServletRequest request,
+                                            HttpServletResponse response,
+                                            FilterChain chain, Authentication authResult) {
         String accessToken = tokenService.tokenIssued(
                 Long.parseLong((String) authResult.getPrincipal()), authResult.getAuthorities());
 
         response.setHeader(AUTH_HEADER, TOKEN_TYPE + accessToken);
-        response.setHeader(EXP_HEADER, String.valueOf(new Date().getTime() + ACCESS_TOKEN_VALID_TIME));
+        response.setHeader(EXP_HEADER, String.valueOf(
+                new Date().getTime() + ACCESS_TOKEN_VALID_TIME));
     }
 
 }

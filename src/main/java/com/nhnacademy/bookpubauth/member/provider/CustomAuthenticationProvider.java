@@ -24,7 +24,8 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
      * @throws AuthenticationException 인증 스트림에 대한 인증이 실패한 경우 throw되는 예외.
      */
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    public Authentication authenticate(
+            Authentication authentication) throws AuthenticationException {
         String userId = (String) authentication.getPrincipal();
         String userPwd = (String) authentication.getCredentials();
 

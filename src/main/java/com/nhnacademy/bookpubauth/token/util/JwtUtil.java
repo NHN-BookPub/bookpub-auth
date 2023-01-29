@@ -1,14 +1,18 @@
 package com.nhnacademy.bookpubauth.token.util;
 
 import com.nhnacademy.bookpubauth.config.KeyConfig;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import javax.annotation.PostConstruct;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -44,12 +48,11 @@ public class JwtUtil {
      */
     @PostConstruct
     private void init() {
-        secret = new String(keyConfig.keyStore(secret).getBytes());
+        secret = keyConfig.keyStore(secret);
     }
 
     /**
      * token 생성해주는 메소드.
-     * <p>
      * claims에는 민감한 정보가 들어가면 안된다 유저의 아이디, 권한정도만 담아 shop에서 아이디로 조회, gateway에서 권한으로 인가정도 이용한다.
      *
      * @param userId         로그인한 유저의 아이디
@@ -71,30 +74,32 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + tokenValidTime))
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .signWith(SignatureAlgorithm.HS256, secret.getBytes())
                 .compact();
     }
 
     /**
      * accessToken을 생성하는 메소드.
      *
-     * @param memberUUID  로그인한 유저 ID
+     * @param memberUuid  로그인한 유저 ID
      * @param authorities 로그인한 유저 권한들
      * @return accessToken 발급
      */
-    public String createAccessToken(String memberUUID, Collection<? extends GrantedAuthority> authorities) {
-        return createToken(memberUUID, authorities, ACCESS_TOKEN, ACCESS_TOKEN_VALID_TIME);
+    public String createAccessToken(String memberUuid,
+                                    Collection<? extends GrantedAuthority> authorities) {
+        return createToken(memberUuid, authorities, ACCESS_TOKEN, ACCESS_TOKEN_VALID_TIME);
     }
 
     /**
      * refreshToken을 생성하는 메소드.
      *
-     * @param memberUUID  로그인한 유저 ID
+     * @param memberUuid  로그인한 유저 ID
      * @param authorities 로그인한 유저 권한들
      * @return refreshToken 발급
      */
-    public String createRefreshToken(String memberUUID, Collection<? extends GrantedAuthority> authorities) {
-        return createToken(memberUUID, authorities, REFRESH_TOKEN, REFRESH_TOKEN_VALID_TIME);
+    public String createRefreshToken(String memberUuid,
+                                     Collection<? extends GrantedAuthority> authorities) {
+        return createToken(memberUuid, authorities, REFRESH_TOKEN, REFRESH_TOKEN_VALID_TIME);
     }
 
     /**
@@ -104,7 +109,29 @@ public class JwtUtil {
      * @return jwt의 claim부분만 파싱 된 결과.
      */
     public Claims parseClaims(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token).getBody();
+    }
+
+    /**
+     * 토큰 검증하는 메소드.
+     *
+     * @param token jwt토큰.
+     * @return 검증된 토큰인지 아닌지.
+     */
+    public boolean isValidateToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token);
+            return true;
+        } catch (SignatureException | MalformedJwtException e) {
+            log.error("잘못된 JWT 서명입니다.");
+        } catch (ExpiredJwtException e) {
+            log.error("만료된 JWT 토큰입니다.");
+        } catch (UnsupportedJwtException e) {
+            log.error("지원되지 않는 JWT 토큰입니다.");
+        } catch (IllegalArgumentException e) {
+            log.error("JWT 토큰이 잘못되었습니다.");
+        }
+        return false;
     }
 
     /**
@@ -120,7 +147,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + ACCESS_TOKEN_VALID_TIME))
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .signWith(SignatureAlgorithm.HS256, secret.getBytes())
                 .compact();
     }
 

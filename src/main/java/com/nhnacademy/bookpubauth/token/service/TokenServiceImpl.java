@@ -3,15 +3,14 @@ package com.nhnacademy.bookpubauth.token.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.bookpubauth.token.dto.TokenInfoDto;
-import com.nhnacademy.bookpubauth.token.exeption.ModulationTokenException;
 import com.nhnacademy.bookpubauth.token.exeption.TokenParsingException;
 import com.nhnacademy.bookpubauth.token.exeption.UnusualApproachException;
 import com.nhnacademy.bookpubauth.token.util.JwtUtil;
+import io.jsonwebtoken.Claims;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -28,7 +27,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class TokenServiceImpl implements TokenService {
-    private static final String MESSAGE = "다시 로그인 하세요.";
+    private static final String EXP_MESSAGE = "다시 로그인 하세요.";
+    private static final String TOKEN_INVALID_MESSAGE = "유효하지 않은 토큰입니다.";
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
@@ -40,13 +40,13 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String tokenIssued(Long userNo,
                               Collection<? extends GrantedAuthority> authorities) {
-        String memberUUID = UUID.randomUUID().toString();
+        String memberUuid = UUID.randomUUID().toString();
 
-        String refreshToken = jwtUtil.createRefreshToken(memberUUID, authorities);
-        String accessToken = jwtUtil.createAccessToken(memberUUID, authorities);
+        String refreshToken = jwtUtil.createRefreshToken(memberUuid, authorities);
+        String accessToken = jwtUtil.createAccessToken(memberUuid, authorities);
 
-        redisTemplate.opsForHash().put(JwtUtil.REFRESH_TOKEN, memberUUID, refreshToken);
-        redisTemplate.opsForValue().set(memberUUID, String.valueOf(userNo));
+        redisTemplate.opsForHash().put(JwtUtil.REFRESH_TOKEN, accessToken, refreshToken);
+        redisTemplate.opsForValue().set(memberUuid, String.valueOf(userNo));
 
         return accessToken;
     }
@@ -56,10 +56,13 @@ public class TokenServiceImpl implements TokenService {
      */
     @Override
     public String tokenReIssued(String accessToken) {
-        Claims claims = jwtUtil.parseClaims(accessToken);
-        String memberUUID = accessTokenValidate(claims);
+        if (!jwtUtil.isValidateToken(accessToken)) {
+            return TOKEN_INVALID_MESSAGE;
+        }
 
-        String refreshToken = getRefreshToken(memberUUID);
+        Claims claims = jwtUtil.parseClaims(accessToken);
+
+        String refreshToken = getRefreshToken(accessToken);
 
         String payload = jwtUtil.decodeJwt(refreshToken);
         TokenInfoDto tokenInfo = getTokenInfoDto(payload);
@@ -67,24 +70,30 @@ public class TokenServiceImpl implements TokenService {
         long validTime = tokenInfo.getExp() - (new Date().getTime() / 1000);
 
         String message = refreshTokenExpCheck(validTime);
-        if (Objects.nonNull(message)) return message;
+        if (Objects.nonNull(message)) {
+            return message;
+        }
+        String renewAccessToken = jwtUtil.reissuedAccessToken(claims);
 
-        return jwtUtil.reissuedAccessToken(claims);
+        redisTemplate.opsForHash().put(JwtUtil.REFRESH_TOKEN, renewAccessToken, refreshToken);
+
+        return renewAccessToken;
     }
 
     /**
      * redis에서 RefreshToken을 가져오는 메소드.
      *
-     * @param memberUUID 멤버 고유번호.
+     * @param accessToken 멤버 고유번호.
      * @return 인증된 멤버의 refreshToken.
      */
-    private String getRefreshToken(String memberUUID) {
+    private String getRefreshToken(String accessToken) {
         String refreshToken =
-                (String) redisTemplate.opsForHash().get(JwtUtil.REFRESH_TOKEN, memberUUID);
-
+                (String) redisTemplate.opsForHash().get(JwtUtil.REFRESH_TOKEN, accessToken);
         if (Objects.isNull(refreshToken)) {
             throw new UnusualApproachException();
         }
+
+        redisTemplate.opsForHash().delete(JwtUtil.REFRESH_TOKEN, accessToken);
         return refreshToken;
     }
 
@@ -96,13 +105,14 @@ public class TokenServiceImpl implements TokenService {
      */
     private static String refreshTokenExpCheck(long validTime) {
         if (validTime <= 0) {
-            return MESSAGE;
+            return EXP_MESSAGE;
         }
         return null;
     }
 
     /**
      * tokenDto에 String인 payload를 파싱하여 값을 쉽게 건들기 위함.
+     *
      * @param payload refreshToken의 payload 부분.
      * @return tokeninfo Dto.
      */
@@ -114,20 +124,6 @@ public class TokenServiceImpl implements TokenService {
             throw new TokenParsingException();
         }
         return tokenInfo;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String accessTokenValidate(Claims claims) {
-        String memberUUID = (String) claims.get("memberUUID");
-
-        if (Objects.isNull(memberUUID)) {
-            throw new ModulationTokenException();
-        }
-
-        return memberUUID;
     }
 
 }
