@@ -118,7 +118,7 @@ public class JwtUtil {
      * @param token jwt토큰.
      * @return 검증된 토큰인지 아닌지.
      */
-    public boolean validateToken(String token) {
+    public boolean isValidateToken(String token) {
         try {
             Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token);
             return true;
