@@ -35,7 +35,7 @@ public class SecurityConfig {
     private final ObjectMapper objectMapper;
 
     /**
-     * security filterChain 설정
+     * security filterChain 설정.
      *
      * @param http 간단하게 시큐리티 설정을 할 수있도록 제공해주는 파라미터.
      * @return 필터의 설정을 마친 후 필터체인을 리턴.
@@ -54,7 +54,8 @@ public class SecurityConfig {
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        http.addFilterAt(customAuthenticationFilter(null), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(customAuthenticationFilter(null),
+                UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -90,9 +91,13 @@ public class SecurityConfig {
      * @throws Exception getAuthenticationManager()를 사용할 때 발생하는 에러처리.
      */
     @Bean
-    public CustomAuthenticationFilter customAuthenticationFilter(TokenService tokenService) throws Exception {
-        CustomAuthenticationFilter customAuthenticationFilter
-                = new CustomAuthenticationFilter(customAuthenticationProvider(), tokenService, objectMapper);
+    public CustomAuthenticationFilter customAuthenticationFilter(
+            TokenService tokenService) throws Exception {
+        CustomAuthenticationFilter customAuthenticationFilter =
+                new CustomAuthenticationFilter(customAuthenticationProvider(),
+                        tokenService,
+                        objectMapper);
+
         customAuthenticationFilter.setFilterProcessesUrl(LOGIN_REQUEST_MATCHER);
         customAuthenticationFilter.setAuthenticationManager(getAuthenticationManager(null));
 

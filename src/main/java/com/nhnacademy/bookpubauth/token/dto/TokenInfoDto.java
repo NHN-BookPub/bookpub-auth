@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Getter
 public class TokenInfoDto {
     private String sub;
-    private String memberUUID;
+    private String memberUuid;
     private String roles;
     private String iat;
     private Long exp;
