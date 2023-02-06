@@ -74,7 +74,8 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + tokenValidTime))
-                .signWith(SignatureAlgorithm.HS256, secret.getBytes())
+                .signWith(SignatureAlgorithm.HS256,
+                        Base64.getEncoder().encodeToString(secret.getBytes()))
                 .compact();
     }
 
