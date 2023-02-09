@@ -6,7 +6,6 @@ import com.nhnacademy.bookpubauth.member.dto.MemberInfoRequestDto;
 import com.nhnacademy.bookpubauth.member.dto.MemberInfoResponseDto;
 import com.nhnacademy.bookpubauth.member.exception.NotMemberBookpubSite;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 /**
  * UserDetailService 클래스 상속받아 커스터마이징 클래스.
@@ -36,12 +36,14 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        ResponseEntity<MemberInfoResponseDto> responseMemberData
-                = memberAdaptor.loginRequest(new MemberInfoRequestDto(userId));
+        ResponseEntity<MemberInfoResponseDto> responseMemberData;
 
-        if (Objects.isNull(responseMemberData)) {
+        try {
+            responseMemberData = memberAdaptor.loginRequest(new MemberInfoRequestDto(userId));
+        } catch (HttpClientErrorException e) {
             throw new NotMemberBookpubSite();
         }
+
         MemberInfoResponseDto member = responseMemberData.getBody();
 
         List<SimpleGrantedAuthority> grantedAuthorities =
