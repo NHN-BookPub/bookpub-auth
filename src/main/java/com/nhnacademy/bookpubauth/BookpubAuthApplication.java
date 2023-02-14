@@ -13,7 +13,6 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 @Slf4j
 public class BookpubAuthApplication {
     public static void main(String[] args) {
-        log.warn("실행");
         SpringApplication.run(BookpubAuthApplication.class, args);
     }
 
