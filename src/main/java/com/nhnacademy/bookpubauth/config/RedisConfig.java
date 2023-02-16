@@ -12,7 +12,6 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /**
  * 레디스를 이용하기위한 config 클래스.
@@ -20,7 +19,6 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
  * @author : 임태원
  * @since : 1.0
  */
-@EnableRedisHttpSession
 @Configuration
 @ConfigurationProperties(prefix = "bookpub.redis")
 @RequiredArgsConstructor
@@ -54,6 +52,7 @@ public class RedisConfig implements BeanClassLoaderAware {
      * @return redis에 get,put 등을 할 수있게하는 redisTemplate객체를 반환.
      */
     @Bean
+    @SuppressWarnings("java:S1452")
     public RedisTemplate<?, ?> redisTemplate() {
         RedisTemplate<byte[], byte[]> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
