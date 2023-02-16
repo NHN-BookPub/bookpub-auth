@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class JwtUtil {
-    public static final Long ACCESS_TOKEN_VALID_TIME = Duration.ofHours(12).toMillis();
+    public static final Long ACCESS_TOKEN_VALID_TIME = Duration.ofHours(2).toMillis();
     private static final Long REFRESH_TOKEN_VALID_TIME = Duration.ofDays(1).toMillis();
     public static final String ACCESS_TOKEN = "access-token";
     public static final String REFRESH_TOKEN = "refresh-token";
