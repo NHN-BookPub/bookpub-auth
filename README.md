@@ -5,13 +5,20 @@
 ./mvnw spring-book:run
 ```
 
+## 서비스 소개
+
+클라우드 서비스를 적용한 온라인 책 쇼핑몰 서비스
+
 ## 아키텍처 구조
+
 ![Book_Pub_ Architecture](https://user-images.githubusercontent.com/87689191/220088802-720d31f9-71b9-494a-b413-132cd931335c.png)
 
-## CD/CD 
+## CD/CD
+
 ![CI:CD](https://user-images.githubusercontent.com/87689191/220251384-aef3b943-bd11-4582-8e63-c11f88d5d81c.png)
 
-### 프로젝트 관리(공통)
+
+## 프로젝트 관리(공통)
 
 ### WBS
 
