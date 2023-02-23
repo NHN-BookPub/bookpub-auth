@@ -159,10 +159,14 @@ public class JwtUtil {
      * @return 복호화 된 정보를 리턴해준다.
      */
     public String decodeJwt(String jwt) {
-        String jsonWebToken = jwt.substring(TOKEN_TYPE.length());
-        String payload = jsonWebToken.split("\\.")[1];
+        String payload = splitBearer(jwt);
 
         return new String(decoder.decode(payload));
+    }
+
+    public String splitBearer(String jwt) {
+        String jsonWebToken = jwt.substring(TOKEN_TYPE.length());
+        return jsonWebToken.split("\\.")[1];
     }
 
     public String getSecret() {
