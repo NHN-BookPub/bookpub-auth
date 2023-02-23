@@ -28,4 +28,6 @@ public interface TokenService {
      * @return accessToken 재발급.
      */
     String tokenReIssued(String accessToken);
+
+    void logout(String jwt);
 }
