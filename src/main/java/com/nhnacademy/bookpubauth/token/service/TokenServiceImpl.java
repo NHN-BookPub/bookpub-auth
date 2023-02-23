@@ -1,5 +1,7 @@
 package com.nhnacademy.bookpubauth.token.service;
 
+import static com.nhnacademy.bookpubauth.token.util.JwtUtil.TOKEN_TYPE;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.bookpubauth.token.dto.TokenInfoDto;
@@ -11,6 +13,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -29,6 +32,7 @@ import org.springframework.stereotype.Service;
 public class TokenServiceImpl implements TokenService {
     private static final String EXP_MESSAGE = "다시 로그인 하세요.";
     private static final String TOKEN_INVALID_MESSAGE = "유효하지 않은 토큰입니다.";
+    private static final String BLACK_LIST = "black_list";
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
@@ -78,6 +82,17 @@ public class TokenServiceImpl implements TokenService {
         redisTemplate.opsForHash().put(JwtUtil.REFRESH_TOKEN, renewAccessToken, refreshToken);
 
         return renewAccessToken;
+    }
+
+    @Override
+    public void logout(String jwt) {
+        String accessToken = jwt.substring(TOKEN_TYPE.length());
+        Claims claims = jwtUtil.parseClaims(accessToken);
+        long exp = claims.getExpiration().getTime();
+
+        redisTemplate.opsForHash().put(BLACK_LIST, accessToken, "");
+        redisTemplate.expire(accessToken, exp, TimeUnit.MICROSECONDS);
+        redisTemplate.opsForHash().delete(JwtUtil.REFRESH_TOKEN, accessToken);
     }
 
     /**
