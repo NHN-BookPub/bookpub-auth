@@ -84,6 +84,9 @@ public class TokenServiceImpl implements TokenService {
         return renewAccessToken;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void logout(String jwt) {
         String accessToken = jwt.substring(TOKEN_TYPE.length());
