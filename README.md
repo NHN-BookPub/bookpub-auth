@@ -11,7 +11,7 @@
 
 ## 아키텍처 구조
 
-![Book_Pub_ Architecture](https://user-images.githubusercontent.com/87689191/220088802-720d31f9-71b9-494a-b413-132cd931335c.png)
+![Book_Pub_ Architecture](https://user-images.githubusercontent.com/76966467/221409819-e28ffb39-6776-41ae-b258-8575184a629a.png)
 
 ## CD/CD
 
